@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Road Shield Helper
 // @namespace    https://github.com/thecre8r/
-// @version      2024.12.31.01
+// @version      2025.01.02.01-hr
 // @description  Road Shield Helper
 // @match        https://www.waze.com/editor*
 // @match        https://www.waze.com/*/editor*
@@ -293,7 +293,14 @@ function startScriptUpdateMonitor() {
     function AutoFiller() {
 
         let streetname = document.querySelector("#wz-dialog-container > div > wz-dialog > wz-dialog-header > div.street-name").innerText
-        let regex = /(?:((?:(?:[A-Z]+)(?=\-))|(?:Beltway)|(?:Loop)|(?:TOLL)|(?:Parish Rd)|(?:Park Rd)|(?:Recreational Rd)|(?:Spur))(?:-|\ )((?:[A-Z]+)|(?:\d+(?:[A-Z])?(?:-\d+)?)))?(?: (ALT-TRUCK|BUS|ALT|BYP|CONN|SPUR|TRUCK|TOLL|Toll|LOOP|NASA|Park|LINK))?(?: (N|E|S|W))?(?: • (.*))?/;
+        let country = W.model.getTopCountry().attributes.name;
+        var regex;
+        var shText;
+        if (country == 'Croatia') {
+            regex = /([ADELZŽ])(\d+)/
+        } else {
+            regex = /(?:((?:(?:[A-Z]+)(?=\-))|(?:Beltway)|(?:Loop)|(?:TOLL)|(?:Parish Rd)|(?:Park Rd)|(?:Recreational Rd)|(?:Spur))(?:-|\ )((?:[A-Z]+)|(?:\d+(?:[A-Z])?(?:-\d+)?)))?(?: (ALT-TRUCK|BUS|ALT|BYP|CONN|SPUR|TRUCK|TOLL|Toll|LOOP|NASA|Park|LINK))?(?: (N|E|S|W))?(?: • (.*))?/;
+        }
         let SHStates = ['Colorado', 'Minnesota', 'Oklahoma', 'Texas'];
         let SRStates = ['Alabama', 'Arizona', 'California', 'Connecticut', 'Florida', 'Georgia', 'Illinois', 'Massachusetts', 'Maine', 'New Hampshire', 'New Mexico', 'Ohio', 'Pennsylvania', 'Utah', 'Washington'];
         let CRStates = ['Alabama', 'Arkansas', 'Florida', 'Louisiana', 'Iowa', 'Kansas', 'New Jersey', 'New York', 'North Dakota', 'South Dakota', 'Tennessee'];
@@ -369,8 +376,22 @@ function startScriptUpdateMonitor() {
             }
         }
 
-        let State = getState()
-        switch (match[1]) {
+        if (country == 'Croatia') {
+            //MakeShield(match)
+            const items = document.querySelectorAll('.roadshield-form-line > wz-menu > wz-menu-item');
+            var id = match[1];
+            shText = (id == 'A' || id == 'E') ? id + match[2] : match[2];
+            if (id == 'Ž' || id == 'Z') { id = 'G'; }
+            items.forEach(function(item) {
+                var ii = item.getAttribute("title").substring(0,1);
+                if (ii == id) {
+                    item.click();
+                }
+            });
+
+        } else {
+          let State = getState()
+          switch (match[1]) {
             case "Beltway":
                 if (State == "Texas") {
                     MakeShield(match,State,undefined,'square ' + match[1].toUpperCase());
@@ -596,13 +617,16 @@ function startScriptUpdateMonitor() {
             default:
                 MakeShield(match)
                 break;
+          }
         }
         if (!document.querySelector(`#WMERSH-Message`) || (document.querySelector(`#WMERSH-Message`) && !document.querySelector("#WMERSH-Message").classList.contains("Warning"))){
             let shieldTextInput = document.querySelector("#wz-dialog-container > div > wz-dialog > wz-dialog-content > div:nth-child(2) > wz-text-input");
             let shieldDirectionInput = document.querySelector("#wz-dialog-container > div > wz-dialog > wz-dialog-content > div:nth-child(3) > wz-text-input");
             let ApplyButton = document.querySelector("#wz-dialog-container > div > wz-dialog > wz-dialog-controls > wz-button.apply-button.hydrated");
             if (match[2]) {
-                if (match[1] == "H") {
+                if (shText) {
+                    shieldTextInput.value = shText;
+                } else if (match[1] == "H") {
                     shieldTextInput.value = match[1]+'-'+match[2]
                 } else if ((match[3] == "ALT" | match[3] == "BUS" | match[3] == "SPUR" | match[3] == "TRUCK") && State == "Arkansas"){
                     switch (match[3]) {
