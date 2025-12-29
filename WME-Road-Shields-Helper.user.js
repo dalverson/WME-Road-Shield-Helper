@@ -684,6 +684,9 @@ function startScriptUpdateMonitor() {
 
         /* -- START Get Segment Details --*/
         const arrow = document.querySelector("div.arrow.turn-arrow-state-open.hover");
+        if (arrow == null) {
+            return;
+        }
         SegmentArray = arrow.dataset?.id.split(/(f|r)/g) //forward or reverse
         SegmentArray = SegmentArray.filter(element => {
             return element != null && element != '';
