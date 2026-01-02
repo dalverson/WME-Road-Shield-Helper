@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Road Shield Helper
 // @namespace    https://github.com/thecre8r/
-// @version      2025.12.29.01
+// @version      2026.01.02.01
 // @description  Road Shield Helper
 // @match        https://www.waze.com/editor*
 // @match        https://www.waze.com/*/editor*
@@ -857,7 +857,7 @@ function startScriptUpdateMonitor() {
                                     </div>
                                   </div>
                                 </div>`
-            let AdDIV = `<div id="wmersh-pc" style="margin: -8px 0px 5px 0px;background:lightgray;" data-original-title="...and users like you." ><span style="font-size:10px; margin:auto; text-align: center;display: block;">Preview Courtesy of Road Shield Helper</span></div>`
+            let AdDIV = `<div id="wmersh-pc" style="margin: -8px 0px 0px 0px;background:lightgray;" data-original-title="...and users like you." ><span style="font-size:10px; margin:auto; text-align: center;display: block;">Preview Courtesy of Road Shield Helper</span></div>`
             let emptydiv = `<div style="background:red"></div>`
 
             // this delay is not needed, but is handy to set a breakpoint after, so you can view the DOM as its built.
