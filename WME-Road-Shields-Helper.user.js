@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Road Shield Helper
 // @namespace    https://github.com/thecre8r/
-// @version      2026.01.02.01
+// @version      2026.01.08.01
 // @description  Road Shield Helper
 // @match        https://www.waze.com/editor*
 // @match        https://www.waze.com/*/editor*
@@ -862,8 +862,18 @@ function startScriptUpdateMonitor() {
 
             // this delay is not needed, but is handy to set a breakpoint after, so you can view the DOM as its built.
             await new Promise(r => setTimeout(r, 20));
-            let toolTipDiv = document.querySelector('.overlay-container > [class^="root-"]');
-            let adjacentDiv = document.querySelector('.overlay-container > [class^="root-"]');
+            let ovlRoots = document.querySelectorAll('.overlay-container > [class^="root-"]');
+            let toolTipDiv = null;
+            let adjacentDiv = null;
+            for (let i=0; i<ovlRoots.length; i++) {
+                if (!ovlRoots[i].querySelector('wz-card')) {
+                    toolTipDiv = ovlRoots[i];
+                    adjacentDiv = ovlRoots[i];
+                }
+            }
+            if (toolTipDiv == null) { // if its a wz-card (UR) panel, exit
+                return;
+            }
 
             if (turnGuidance.tts) {
                 let turnDiv = toolTipDiv.querySelector('[class^="bordered-"]').parentElement;
