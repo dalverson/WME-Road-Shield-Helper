@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Road Shield Helper
 // @namespace    https://github.com/thecre8r/
-// @version      2025.06.23.01
+// @version      2026.01.15.01
 // @description  Road Shield Helper
 // @match        https://www.waze.com/editor*
 // @match        https://www.waze.com/*/editor*
@@ -27,7 +27,7 @@
     const SCRIPT_NAME = GM_info.script.name;
     const SCRIPT_VERSION = GM_info.script.version.toString();
                                         //{"version": "2023.01.01.01","changes": ""},
-    const SCRIPT_HISTORY = `{"versions": [{"version": "2025.06.23.01","changes": "Added checks to avoid errors caused by empty TTS textbox"}, {"version": "2025.05.29.01","changes": "Fixed VI autofill"}, {"version": "2025.03.13.01","changes": "Fixed insert from button panel"}, {"version": "2025.01.06.01","changes": "Updated Match and Exclude List"},{"version": "2024.12.31.01","changes": "Shield Updates for IA/KS/MN/TN"},{"version": "2024.11.01.01","changes": "Fixed styling and TTS Override"},{"version": "2024.10.18.00","changes": "The turn instruction preview was playing hide-and-seek. Found it!"},{"version": "2023.08.27.01","changes": "Fix to turn instruction preview for turns to unnamed segments."},{"version": "2023.08.23.01","changes": "Compatibility update with WME V2.180."},{"version": "2023.02.11.01","changes": "Compatibility update. Added Minnesota CH shield logic."},{"version": "2021.12.30.001","changes": "jm6087 additions"},{"version": "2022.11.29.01","changes": "Code Cleanup"},{"version": "2022.08.30.01","changes": "Added button panel to segment name edit panel."},{"version": "2022.03.05.01","changes": "Fixed region-specific button logic"},{"version": "2022.01.22.01","changes": "More added support for additional new shields"},{"version": "2022.01.21.01","changes": "Added support for new shields"},{"version": "2021.08.09.01","changes": "Added the preview on the turn instruction dialog box"},{"version": "2021.07.07.03","changes": "Fixed another small ꜱ in West and East."},{"version": "2021.07.07.02","changes": "Fixed small ꜱ in West and East."},{"version": "2021.07.07.01","changes": "Added Buttons to Turn Instructions and all states should be compatible. Please be sure to report an issue on GitHub if you find one that is not working."},{"version": "2021.06.12.01","changes": "Support for Illinois CH Road Shields, a few more SH- States, a few more SR- States, and Arkansas's Shield Name Suffixes"},{"version": "2021.06.05.01","changes": "Support for Missouri Supplemental Road Shields"},{"version": "2021.06.03.02","changes": "Support for Kansas K-xxx format"},{"version": "2021.06.03.01","changes": "Added CR support for states using hexagon type shields"},{"version": "2021.06.02.01","changes": "Added SR Shield for New Hampshire"},{"version": "2021.06.01.02","changes": "Added County Shields for Wisconsin<br>Updated Changelog Format"},{"version": "2021.06.01.01","changes": "Fixed GitHub URL"},{"version": "2021.05.31.01","changes": "Added Wisconsin and other miscellaneous fixes"},{"version": "2021.05.23.01","changes": "Initial Version"}]}`;
+    const SCRIPT_HISTORY = `{"versions": [{"version": "2026.01.15.01","changes": "Fix VI preview"},{"version": "2025.06.23.01","changes": "Added checks to avoid errors caused by empty TTS textbox"}, {"version": "2025.05.29.01","changes": "Fixed VI autofill"}, {"version": "2025.03.13.01","changes": "Fixed insert from button panel"}, {"version": "2025.01.06.01","changes": "Updated Match and Exclude List"},{"version": "2024.12.31.01","changes": "Shield Updates for IA/KS/MN/TN"},{"version": "2024.11.01.01","changes": "Fixed styling and TTS Override"},{"version": "2024.10.18.00","changes": "The turn instruction preview was playing hide-and-seek. Found it!"},{"version": "2023.08.27.01","changes": "Fix to turn instruction preview for turns to unnamed segments."},{"version": "2023.08.23.01","changes": "Compatibility update with WME V2.180."},{"version": "2023.02.11.01","changes": "Compatibility update. Added Minnesota CH shield logic."},{"version": "2021.12.30.001","changes": "jm6087 additions"},{"version": "2022.11.29.01","changes": "Code Cleanup"},{"version": "2022.08.30.01","changes": "Added button panel to segment name edit panel."},{"version": "2022.03.05.01","changes": "Fixed region-specific button logic"},{"version": "2022.01.22.01","changes": "More added support for additional new shields"},{"version": "2022.01.21.01","changes": "Added support for new shields"},{"version": "2021.08.09.01","changes": "Added the preview on the turn instruction dialog box"},{"version": "2021.07.07.03","changes": "Fixed another small ꜱ in West and East."},{"version": "2021.07.07.02","changes": "Fixed small ꜱ in West and East."},{"version": "2021.07.07.01","changes": "Added Buttons to Turn Instructions and all states should be compatible. Please be sure to report an issue on GitHub if you find one that is not working."},{"version": "2021.06.12.01","changes": "Support for Illinois CH Road Shields, a few more SH- States, a few more SR- States, and Arkansas's Shield Name Suffixes"},{"version": "2021.06.05.01","changes": "Support for Missouri Supplemental Road Shields"},{"version": "2021.06.03.02","changes": "Support for Kansas K-xxx format"},{"version": "2021.06.03.01","changes": "Added CR support for states using hexagon type shields"},{"version": "2021.06.02.01","changes": "Added SR Shield for New Hampshire"},{"version": "2021.06.01.02","changes": "Added County Shields for Wisconsin<br>Updated Changelog Format"},{"version": "2021.06.01.01","changes": "Fixed GitHub URL"},{"version": "2021.05.31.01","changes": "Added Wisconsin and other miscellaneous fixes"},{"version": "2021.05.23.01","changes": "Initial Version"}]}`;
     const GH = {link: 'https://github.com/TheCre8r/WME-Road-Shield-Helper/', issue: 'https://github.com/TheCre8r/WME-Road-Shield-Helper/issues/new', wiki: 'https://github.com/TheCre8r/WME-Road-Shield-Helper/wiki'};
     const UPDATE_ALERT = false;
     const DOWNLOAD_URL = 'https://raw.githubusercontent.com/TheCre8r/WME-Road-Shield-Helper/master/WME-Road-Shields-Helper.user.js';
@@ -679,11 +679,14 @@ function startScriptUpdateMonitor() {
             }
         }
     }
-    function BuildBRTDiv() {
+    async function BuildBRTDiv() {
         let node,turnData,JBturnData,SegmentArray;
 
         /* -- START Get Segment Details --*/
         const arrow = document.querySelector("div.arrow.turn-arrow-state-open.hover");
+        if (arrow == null) {
+            return;
+        }
         SegmentArray = arrow.dataset?.id.split(/(f|r)/g) //forward or reverse
         SegmentArray = SegmentArray.filter(element => {
             return element != null && element != '';
@@ -716,9 +719,9 @@ function startScriptUpdateMonitor() {
             log("Node is Connected to Junction Box")
             let JBpaths
             if (SegmentDetails.fromSegment.direction == "f") {
-                JBpaths = W.model.bigJunctions.getObjectById(W.selectionManager._getSelectedSegments()[0].attributes.toCrossroads[0])._pathCache
-            } else if (SegmentDetails.fromSegment.direction == "r"){
-                JBpaths = W.model.bigJunctions.getObjectById(W.selectionManager._getSelectedSegments()[0].attributes.fromCrossroads[0])._pathCache
+                JBpaths = W.model.bigJunctions.getObjectById(W.selectionManager._getSelectedSegments()[0].attributes.toCrossroads[0]).getAllPossibleTurns();
+            } else if (SegmentDetails.fromSegment.direction == "r") {
+                JBpaths = W.model.bigJunctions.getObjectById(W.selectionManager._getSelectedSegments()[0].attributes.fromCrossroads[0]).getAllPossibleTurns();
             } else {
                 alert("Let The_Cre8r know about this PL. [Error 2]")
             }
@@ -828,12 +831,12 @@ function startScriptUpdateMonitor() {
                 }
                 towardsHTML += `<\div>`
             } else {
-                towardsHTML = `<div class="secondary-markup markup-placeholder">Optional guidance for the driver</div>`
+                towardsHTML = `<div class="secondary-markup markup-placeholder">Optional guidance</div>`
             }
 
             /* START HTML */
             let htmlstring = `<div class="turn-instructions-panel">
-                                <div class="turn-preview-wrapper" ">
+                                <div class="turn-preview-wrapper" style="margin: 6px 6px 0px 6px;">
                                   <div class="turn-preview" style="border-radius: 4px;">
                                     <div>
                                       <div class="turn-preview-inner">
@@ -854,19 +857,27 @@ function startScriptUpdateMonitor() {
                                     </div>
                                   </div>
                                 </div>`
-            let AdDIV = `<div id="wmersh-pc" style="margin: -8px -8px 5px -8px;background:lightgray;" data-original-title="...and users like you." ><span style="font-size:10px; margin:auto; text-align: center;display: block;">Preview Courtesy of Road Shield Helper</span></div>`
+            let AdDIV = `<div id="wmersh-pc" style="margin: -8px 0px 0px 0px;background:lightgray;" data-original-title="...and users like you." ><span style="font-size:10px; margin:auto; text-align: center;display: block;">Preview Courtesy of Road Shield Helper</span></div>`
             let emptydiv = `<div style="background:red"></div>`
-            // If the next segment has no name, the first child is blank text. Swap it out for the turn-header div that's normally present.
-            let toolTipDiv = document.querySelector(".tippy-box > div");
-            //if (toolTipDiv.childNodes[0].tagName != 'DIV') {
-                let headerDiv = document.createElement('div');
-                headerDiv.class = 'turn-header';
-                toolTipDiv.insertBefore(headerDiv, toolTipDiv.firstChild);
-            //}
-            let adjacentDiv = document.querySelector(".tippy-box > div > div")
-            // old = document.querySelector("#big-tooltip-region > div")
+
+            // this delay is not needed, but is handy to set a breakpoint after, so you can view the DOM as its built.
+            await new Promise(r => setTimeout(r, 20));
+            let ovlRoots = document.querySelectorAll('.overlay-container > [class^="root-"]');
+            let toolTipDiv = null;
+            let adjacentDiv = null;
+            for (let i=0; i<ovlRoots.length; i++) {
+                if (!ovlRoots[i].querySelector('wz-card')) {
+                    toolTipDiv = ovlRoots[i];
+                    adjacentDiv = ovlRoots[i];
+                }
+            }
+            if (toolTipDiv == null) { // if its a wz-card (UR) panel, exit
+                return;
+            }
+
             if (turnGuidance.tts) {
-                document.querySelector("div.tippy-content > div").insertAdjacentHTML('afterend',`<div id="wmersh-tts-link"style="text-align:center">TTS Override: ${turnGuidance.tts}</div`)
+                let turnDiv = toolTipDiv.querySelector('[class^="bordered-"]').parentElement;
+                turnDiv.insertAdjacentHTML('afterbegin',`<div id="wmersh-tts-link"style="text-align:center">TTS Override: ${turnGuidance.tts}</div>`)
                 document.getElementById('wmersh-tts-link').addEventListener('click', function() {
                     // Create a new Audio object
                     var audio = new Audio(`https://ttsgw.world.waze.com/TTSGateway/Text2SpeechServlet?content_type=audio%2Fmpeg&lat=${get4326CenterPoint().lat}&lon=${get4326CenterPoint().lon}&protocol=2&sessionid=12345654321&skipCache=true&type=street&validate_data=positive&version=6&lang=en-US&text=%20${turnGuidance.tts}%20`);
@@ -879,7 +890,8 @@ function startScriptUpdateMonitor() {
             adjacentDiv.insertAdjacentHTML('afterbegin',AdDIV)
             adjacentDiv.insertAdjacentHTML('afterbegin',htmlstring)
             adjacentDiv.insertAdjacentHTML('afterbegin',emptydiv)
-            document.querySelector(".tippy-box .tippy-content").style.overflow = 'hidden'
+
+            //document.querySelector(".tippy-box .tippy-content").style.overflow = 'hidden'
             //document.querySelector("#big-tooltip-region > div.turn-header").remove()
             $('#wmersh-pc').tooltip({placement: "bottom",container: "body"})
 
@@ -903,7 +915,7 @@ function startScriptUpdateMonitor() {
         let observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 for (let i = 0; i < mutation.addedNodes.length; i++) {
-                    if (mutation.addedNodes[i].id.match("tippy*")) {
+                    if (mutation.addedNodes[i].querySelector("wz-subhead4")) { // if (mutation.addedNodes[i].id.match("tippy*")) {
                         if (_settings.TurnInstructionPreview) {
                             BuildBRTDiv()
                         }
@@ -911,7 +923,7 @@ function startScriptUpdateMonitor() {
                 }
             });
         });
-        observer.observe(document.querySelector("#tippy-container"), { childList: true });
+        observer.observe(document.querySelector(".overlay-container"), { childList: true });
 
     }
     function RSObserver() {
