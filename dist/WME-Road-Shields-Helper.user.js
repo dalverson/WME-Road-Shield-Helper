@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME Road Shield Helper
 // @namespace    https://github.com/thecre8r/
-// @version      2026.02.01.00
+// @version      2026.06.24.00
 // @description  Road Shield Helper
 // @match        https://www.waze.com/editor*
 // @match        https://www.waze.com/*/editor*
@@ -247,7 +247,7 @@
     $(`#WMERSH-${checkboxId}`).prop("checked", checked);
   }
   function loadSettings() {
-    const loadedSettings = $.parseJSON(localStorage.getItem(STORE_NAME));
+    const loadedSettings = JSON.parse(localStorage.getItem(STORE_NAME));
     const defaultSettings = {
       FilterByState: true,
       TurnInstructionPreview: true,
@@ -1235,6 +1235,7 @@
     let turnData;
     let segmentArray;
     const sdk2 = getSdk();
+    await new Promise((r) => setTimeout(r, 20));
     const arrow = document.querySelector("div.arrow.turn-arrow-state-open.hover");
     if (arrow == null) {
       return;
@@ -1268,7 +1269,11 @@
     if (turnData && turnData.turnGuidance) {
       console.log(turnData);
     }
-    if (node.isConnectedToBigJunction() && !(turnData && turnData.turnGuidance)) {
+    let isConnJB = false;
+    if (!turnData || !turnData.turnGuidance) {
+      isConnJB = sdk2.DataModel.Segments.connectsToBigJunction({ segmentId: segmentDetails.fromSegment.id });
+    }
+    if (isConnJB && !(turnData && turnData.turnGuidance)) {
       log("Node is Connected to Junction Box");
       let JBpaths;
       if (segmentDetails.fromSegment.direction === "f") {
